@@ -168,7 +168,7 @@ def main():
 
     # The ID and range of a sample spreadsheet.
     SCAN_SPREADSHEET_ID = fileinfo.get("id")
-    SCAN_SHEET_RANGE_NAME = ["ord", "pay"]
+    SCAN_SHEET_RANGE_NAME = ["ord", "pay!A2:D"]
 
     service = build("sheets", "v4", credentials=creds) # scan google sheet
 
@@ -187,7 +187,8 @@ def main():
       values = ranges[idx].get("values", [])
       for row in values:
         # Print columns A and E, which correspond to indices 0 and 4.
-        print(f"{row[0]}, {row[1]}, {row[2]}, {row[3]}")
+        # print(f"{row[0]}, {row[1]}, {row[2]}, {row[3]}")
+        print('row : ', row)
         allcells.append(row)
     print("allcells : ", allcells)
 
