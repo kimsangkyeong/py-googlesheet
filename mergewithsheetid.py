@@ -167,7 +167,7 @@ def main():
     # print('fileinfo .. : %s' % fileinfo)
 
     # The ID and range of a sample spreadsheet.
-    SCAN_SPREADSHEET_ID = "1O5atw1GsYukg-fFsZFiR47fQC8y4FYF_dNKnFozR8BY" 
+    SCAN_SPREADSHEET_ID = "scanning spreadsheet id XXXX" # 작업할 Sheet ID로 대체하기 
     SCAN_SHEET_RANGE_NAME = ["통합테스트_Check List!A:Z"]
 
     service = build("sheets", "v4", credentials=creds) # scan google sheet
