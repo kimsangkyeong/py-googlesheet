@@ -112,11 +112,11 @@ def batch_update_values(
     # service = build("sheets", "v4", credentials=creds)
 
     if add_sheets(service, spreadsheet_id, range_name) == None : # Merge sheet 생성하기
-      clear_sheets(service, spreadsheet_id, range_name)
+      clear_sheets(service, spreadsheet_id, f'{range_name}!A2:Z')
 
     values = _values
     data = [
-        {"range": range_name, "values": values},
+        {"range": f'{range_name}!A2:Z', "values": values},
         # Additional ranges to update ...
     ]
     body = {"valueInputOption": value_input_option, "data": data
@@ -167,8 +167,12 @@ def main():
     # print('fileinfo .. : %s' % fileinfo)
 
     # The ID and range of a sample spreadsheet.
-    SCAN_SPREADSHEET_ID = "1O5atw1GsYukg-fFsZFiR47fQC8y4FYF_dNKnFozR8BY" 
-    SCAN_SHEET_RANGE_NAME = ["통합테스트_Check List!A:Z"]
+    SCAN_SPREADSHEET_ID = "1fOwAsiu0BP7zS70s-0fuJFdQAAjNxMiJ7JkCz8NpUa8"  
+    SCAN_SHEET_RANGE_NAME = ["01.상품!A2:Z","02.할인!A2:Z","03.쿠폰!A2:Z","04.구독!A2:Z","05.결제!A2:Z",
+                             "06.요금계산!A2:Z","07.배송제고!A2:Z","08.채널!A2:Z","09.제휴입점!A2:Z",
+                             "10.제휴사연동!A2:Z","11.정산!A2:Z","12.전시!A2:Z","13.추천마케팅!A2:Z",
+                             "14.회원!A2:Z","15.고객상담!A2:Z","16.업무공통(박종길)!A2:Z",
+                             "16.업무공통(이시현)!A2:Z"]
 
     service = build("sheets", "v4", credentials=creds) # scan google sheet
 
@@ -181,7 +185,7 @@ def main():
     )
     ranges = result.get("valueRanges", [])
     print(f"{len(ranges)} ranges retrieved")
-    print('ranges : ', ranges)
+    # print('ranges : ', ranges)
     allcells = []
     for idx in range(len(ranges)) :
       values = ranges[idx].get("values", [])
@@ -190,10 +194,10 @@ def main():
         # print(f"{row[0]}, {row[1]}, {row[2]}, {row[3]}")
         print('row : ', row)
         allcells.append(row)
-    print("allcells : ", allcells)
+    # print("allcells : ", allcells)
 
     # write to google sheet 
-    batch_update_values(service, SCAN_SPREADSHEET_ID, "통합테스트_MergeList", "USER_ENTERED", allcells) 
+    batch_update_values(service, SCAN_SPREADSHEET_ID, "17.관리용(전체취합)", "USER_ENTERED", allcells) 
 
   except HttpError as err:
     print(err)
