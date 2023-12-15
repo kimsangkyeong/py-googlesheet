@@ -167,7 +167,7 @@ def main():
     # print('fileinfo .. : %s' % fileinfo)
 
     # The ID and range of a sample spreadsheet.
-    SCAN_SPREADSHEET_ID = "1fOwAsiu0BP7zS70s-0fuJFdQAAjNxMiJ7JkCz8NpUa8"  
+    SCAN_SPREADSHEET_ID = "your spreadsheet id for scanning"  
     SCAN_SHEET_RANGE_NAME = ["01.상품!A2:Z","02.할인!A2:Z","03.쿠폰!A2:Z","04.구독!A2:Z","05.결제!A2:Z",
                              "06.요금계산!A2:Z","07.배송제고!A2:Z","08.채널!A2:Z","09.제휴입점!A2:Z",
                              "10.제휴사연동!A2:Z","11.정산!A2:Z","12.전시!A2:Z","13.추천마케팅!A2:Z",
