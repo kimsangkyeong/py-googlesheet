@@ -4,6 +4,7 @@ from google.oauth2.credentials import Credentials
 from google_auth_oauthlib.flow import InstalledAppFlow
 from googleapiclient.discovery import build
 from googleapiclient.errors import HttpError
+from datetime import date, datetime
 
 # google cloud에서 api key https://console.cloud.google.com/cloud-resource-manager  :  
 # 1. APIs & Services - Enable API : Google Sheet API, Google Drive API
@@ -127,6 +128,23 @@ def batch_update_values(
         .batchUpdate(spreadsheetId=spreadsheet_id, body=body)
         .execute()
     )
+
+    # 취합 작업 시간 Logging
+    mergetime = datetime.now().strftime('%Y-%m-%d %H:%M')
+    logData = [["취합시간", mergetime]]
+    data = [
+        {"range": f'{range_name}!E1:F1', "values": logData},
+        # Additional ranges to update ...
+    ]
+    body = {"valueInputOption": value_input_option, "data": data
+           }
+    result = (
+        service.spreadsheets()
+        .values()
+        .batchUpdate(spreadsheetId=spreadsheet_id, body=body)
+        .execute()
+    )
+
     print(f"{(result.get('totalUpdatedCells'))} cells updated.")
     return result
   except HttpError as error:
