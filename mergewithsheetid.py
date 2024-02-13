@@ -163,7 +163,7 @@ def different_head_sheets(creds):
     SCAN_SHEET_RANGE_NAME = ["★TC_업무공통!A6:AA","TC_업무공통(SKT)!A6:AA","TC_업무공통(통합알림)!A6:AA","TC_상품!A6:Z","TC_할인!A6:AA",
                              "TC_쿠폰!A6:AA","TC_구독!A5:AD","TC_결제!A5:AA","TC_요금계산!A5:AA","TC_배송관리!A6:AA","TC_배송정책!A6:AA",
                              "TC_채널!A5:AA","TC_제휴입점!A6:AA","TC_제휴사연동!A5:AA","TC_정산!A5:AA","TC_전시!A6:AA","TC_추천마케팅!A6:AA",
-                             "TC_회원!A6:AE","TC_사용자권한!A6:AA","★TC_고객상담!A6:AA"]
+                             "TC_회원!A6:AE","TC_사용자권한!A6:AA","TC_고객상담!A6:AA"]
     service = build("sheets", "v4", credentials=creds) # scan google sheet
 
     # Call the Sheets API
@@ -196,7 +196,7 @@ def different_head_sheets(creds):
         # 의미있는 값을 포함하는 항목이 3개 미만이면 skip 
         if len(row) < 3 : 
           if scan_sheet_name in ["★TC_업무공통","TC_업무공통(SKT)","TC_업무공통(통합알림)","TC_상품","TC_할인","TC_쿠폰","TC_배송관리","TC_배송정책",
-                                 "TC_제휴입점","TC_전시","TC_추천마케팅","TC_회원","TC_사용자권한","★TC_고객상담"]:
+                                 "TC_제휴입점","TC_전시","TC_추천마케팅","TC_회원","TC_사용자권한","TC_고객상담"]:
             print(f'< row 번호 {idx + 6} : nodata skip >') # A6 부터 Data 시작하는 경우
           elif scan_sheet_name in ["TC_구독","TC_결제","TC_요금계산","TC_채널","TC_제휴사연동","TC_정산"]:
             print(f'< row 번호 {idx + 5} : nodata skip >') # A5 부터 Data 시작하는 경우
@@ -212,7 +212,7 @@ def different_head_sheets(creds):
 
           if scan_sheet_name in ["★TC_업무공통","TC_업무공통(SKT)","TC_업무공통(통합알림)","TC_할인","TC_쿠폰","TC_결제","TC_요금계산",
                                  "TC_배송관리","TC_배송정책","TC_채널","TC_제휴입점","TC_제휴사연동","TC_정산","TC_전시","TC_추천마케팅",
-                                 "TC_사용자권한","★TC_고객상담"]:
+                                 "TC_사용자권한","TC_고객상담"]:
             if j >= 12: # M
               tmp_row[j-6] = row[j]
           elif scan_sheet_name in ["TC_상품"]:
