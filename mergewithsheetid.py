@@ -229,7 +229,7 @@ def different_head_sheets(creds):
         #   print(f"{tmp_row}")
         allcells.append(tmp_row) 
         valid_data_cnt = valid_data_cnt + 1
-      print(f'              ==>  merged valid data : {valid_data_cnt} 건')
+      print(f'              ==>  merged valid data : {valid_data_cnt} 건', flush=True)
     print("allcells rowcount : ", len(allcells))
 
     # write to google sheet 
