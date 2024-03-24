@@ -113,11 +113,11 @@ def batch_update_values(
     # service = build("sheets", "v4", credentials=creds)
 
     if add_sheets(service, spreadsheet_id, range_name) == None : # Merge sheet 생성하기
-      clear_sheets(service, spreadsheet_id, f'{range_name}!A5:U')
+      clear_sheets(service, spreadsheet_id, f'{range_name}!A5:V')  # U -> V jira ticket 추가
 
     values = _values
     data = [
-        {"range": f'{range_name}!A5:U', "values": values},
+        {"range": f'{range_name}!A5:V', "values": values}, # U -> V jira ticket 추가
         # Additional ranges to update ...
     ]
     body = {"valueInputOption": value_input_option, "data": data
@@ -171,10 +171,11 @@ def different_head_sheets(creds):
 
     # Loop Sheet Range
     allcells = []
-              # 0  1  2  3  4  5  6  7  8  9 10 11 12 13 14 15 16 17 18 19 20
-    std_row = ['','','','','','','','','','','','','','','','','','','','','']
-    # 0-10: 모듈,순번,시나리오ID,시나리오명,케이스ID,케이스명,FO(APP),크롬,엣지,스윙,스윙모바일(Android),
-    # 11-20: 스윙모바일(iOS),통테1차,Tester,Test계획일,Test date,등록자,등록일,수정자,수정일,비고  
+              # 0  1  2  3  4  5  6  7  8  9 10 11 12 13 14 15 16 17 18 19 20 21
+    std_row = ['','','','','','','','','','','','','','','','','','','','','','']
+    # 0-10: 모듈,순번,시나리오ID,시나리오명,케이스ID,케이스명,Jira Ticket,FO(APP),크롬,엣지,스윙,
+    # 11-20: 스윙모바일(Android),스윙모바일(iOS),통테1차,Tester,Test계획일,Test date,등록자,등록일,수정자,수정일,
+    # 21   : 비고
     for scan_sheet_rg_name in SCAN_SHEET_RANGE_NAME :
       result = (
           sheet.values()
@@ -213,17 +214,17 @@ def different_head_sheets(creds):
           if scan_sheet_name in ["★TC_업무공통","TC_업무공통(SKT)","TC_업무공통(통합알림)","TC_할인","TC_쿠폰","TC_결제","TC_요금계산",
                                  "TC_배송관리","TC_배송정책","TC_채널","TC_제휴입점","TC_제휴사연동","TC_정산","TC_전시","TC_추천마케팅",
                                  "TC_사용자권한","TC_고객상담"]:
-            if j >= 12: # M
-              tmp_row[j-6] = row[j]
+            if j >= 11: # M 12 -> L 11(jira ticket)
+              tmp_row[j-5] = row[j] # 6 -> 5 (jira ticket 포함)
           elif scan_sheet_name in ["TC_상품"]:
-            if j >= 11: # L
-              tmp_row[j-5] = row[j]
+            if j >= 10: # L 11 -> K 10(jira ticket)
+              tmp_row[j-4] = row[j] # 5 -> 4 (jira ticket 포함)
           elif scan_sheet_name in ["TC_구독"]:
-            if j >= 15: # P
-              tmp_row[j-9] = row[j]
+            if j >= 14: # P 15 -> O 14(jira ticket)
+              tmp_row[j-8] = row[j] # 9 -> 8 (jira ticket 포함)
           elif scan_sheet_name in ["TC_회원"]:
-            if j >= 16: # Q
-              tmp_row[j-10] = row[j]
+            if j >= 15: # Q 16 -> P 15(jira ticket)
+              tmp_row[j-9] = row[j] # 10 -> 9 (jira ticket 포함)
 
         # if scan_sheet_name in ["TC_제휴입점"] :
         #   print(f"{tmp_row}")
