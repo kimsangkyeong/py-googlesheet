@@ -151,6 +151,61 @@ def batch_update_values(
     print(f"An error occurred: {error}")
     return error
 
+# alert_row from
+def batch_update_alert_values(
+    service, spreadsheet_id, range_name, value_input_option, _values
+):
+  """
+  Creates the batch_update the user has access to.
+  Load pre-authorized user credentials from the environment.
+  TODO(developer) - See https://developers.google.com/identity
+  for guides on implementing OAuth2 for the application.
+  """
+#   creds, _ = google.auth.default()
+  # pylint: disable=maybe-no-member
+  try:
+    # service = build("sheets", "v4", credentials=creds)
+
+    if add_sheets(service, spreadsheet_id, range_name) == None : # Merge sheet 생성하기
+      clear_sheets(service, spreadsheet_id, f'{range_name}!A5:V')  # U -> V jira ticket 추가
+
+    values = _values
+    data = [
+        {"range": f'{range_name}!A5:V', "values": values}, # U -> V jira ticket 추가
+        # Additional ranges to update ...
+    ]
+    body = {"valueInputOption": value_input_option, "data": data
+           }
+    result = (
+        service.spreadsheets()
+        .values()
+        .batchUpdate(spreadsheetId=spreadsheet_id, body=body)
+        .execute()
+    )
+
+    # 취합 작업 시간 Logging
+    mergetime = datetime.now().strftime('%Y-%m-%d %H:%M')
+    logData = [["취합시간", mergetime]]
+    data = [
+        {"range": f'{range_name}!E1:F1', "values": logData},
+        # Additional ranges to update ...
+    ]
+    body = {"valueInputOption": value_input_option, "data": data
+           }
+    result = (
+        service.spreadsheets()
+        .values()
+        .batchUpdate(spreadsheetId=spreadsheet_id, body=body)
+        .execute()
+    )
+
+    print(f"{(result.get('totalUpdatedCells'))} cells updated.")
+    return result
+  except HttpError as error:
+    print(f"An error occurred: {error}")
+    return error
+# alert_row to
+  
 def different_head_sheets(creds):
   try:
     # search_fname = '파일작업예시'  # 찾을 sheet 이름
@@ -171,6 +226,7 @@ def different_head_sheets(creds):
 
     # Loop Sheet Range
     allcells = []
+    alertcells = []  # alert_row 알림목록
               # 0  1  2  3  4  5  6  7  8  9 10 11 12 13 14 15 16 17 18 19 20 21
     std_row = ['','','','','','','','','','','','','','','','','','','','','','']
     # 0-10: 모듈,순번,시나리오ID,시나리오명,케이스ID,케이스명,Jira Ticket,FO(APP),크롬,엣지,스윙,
@@ -226,16 +282,33 @@ def different_head_sheets(creds):
             if j >= 15: # Q 16 -> P 15(jira ticket)
               tmp_row[j-9] = row[j] # 10 -> 9 (jira ticket 포함)
 
-        # if scan_sheet_name in ["TC_제휴입점"] :
-        #   print(f"{tmp_row}")
         allcells.append(tmp_row) 
         valid_data_cnt = valid_data_cnt + 1
+
+        # alert_row from 테스트 수행내역이 있으면서 테스트 날짜를 작성하지 않은 경우 체크
+        test_act_idxes = [7,8,9,10,11,12] # 7-12 : FO(APP),크롬,엣지,스윙,스윙모바일(Android),스윙모바일(iOS)
+        test_status = ["PASS","FAIL","N/A"]
+        test_date_idx  = 16 # 16 : Test date
+        is_tested = False
+        for idx in test_act_idxes :
+          if tmp_row[idx] in test_status :
+            is_tested = True  # 테스트 수행됨
+            break
+        if is_tested :
+          if len(tmp_row[test_date_idx]) < 8 : # 날짜 포맷이 안맞으면
+            tmp_row[21] = "테스트 수행되었음. 테스트 일자 Update 대상" # 비고란을 알림 정보로 셋팅
+            alertcells.append(tmp_row)
+        # alert_row to
       print(f'              ==>  merged valid data : {valid_data_cnt} 건', flush=True)
     print("allcells rowcount : ", len(allcells))
 
     # write to google sheet 
     batch_update_values(service, SCAN_SPREADSHEET_ID, "@TC_통계(전체)", "USER_ENTERED", allcells) 
 
+    # alert_row from
+    if len(alertcells) > 0 :
+      batch_update_alert_values(service, SCAN_SPREADSHEET_ID, "@TC_수정대상", "USER_ENTERED", alertcells) 
+    # alert_row to
   except HttpError as err:
     print(err)
 
