@@ -150,61 +150,6 @@ def batch_update_values(
   except HttpError as error:
     print(f"An error occurred: {error}")
     return error
-
-# alert_row from
-def batch_update_alert_values(
-    service, spreadsheet_id, range_name, value_input_option, _values
-):
-  """
-  Creates the batch_update the user has access to.
-  Load pre-authorized user credentials from the environment.
-  TODO(developer) - See https://developers.google.com/identity
-  for guides on implementing OAuth2 for the application.
-  """
-#   creds, _ = google.auth.default()
-  # pylint: disable=maybe-no-member
-  try:
-    # service = build("sheets", "v4", credentials=creds)
-
-    if add_sheets(service, spreadsheet_id, range_name) == None : # Merge sheet 생성하기
-      clear_sheets(service, spreadsheet_id, f'{range_name}!A5:V')  # U -> V jira ticket 추가
-
-    values = _values
-    data = [
-        {"range": f'{range_name}!A5:V', "values": values}, # U -> V jira ticket 추가
-        # Additional ranges to update ...
-    ]
-    body = {"valueInputOption": value_input_option, "data": data
-           }
-    result = (
-        service.spreadsheets()
-        .values()
-        .batchUpdate(spreadsheetId=spreadsheet_id, body=body)
-        .execute()
-    )
-
-    # 취합 작업 시간 Logging
-    mergetime = datetime.now().strftime('%Y-%m-%d %H:%M')
-    logData = [["취합시간", mergetime]]
-    data = [
-        {"range": f'{range_name}!E1:F1', "values": logData},
-        # Additional ranges to update ...
-    ]
-    body = {"valueInputOption": value_input_option, "data": data
-           }
-    result = (
-        service.spreadsheets()
-        .values()
-        .batchUpdate(spreadsheetId=spreadsheet_id, body=body)
-        .execute()
-    )
-
-    print(f"{(result.get('totalUpdatedCells'))} cells updated.")
-    return result
-  except HttpError as error:
-    print(f"An error occurred: {error}")
-    return error
-# alert_row to
   
 def different_head_sheets(creds):
   try:
@@ -305,10 +250,9 @@ def different_head_sheets(creds):
     # write to google sheet 
     batch_update_values(service, SCAN_SPREADSHEET_ID, "@TC_통계(전체)", "USER_ENTERED", allcells) 
 
-    # alert_row from
-    if len(alertcells) > 0 :
-      batch_update_alert_values(service, SCAN_SPREADSHEET_ID, "@TC_수정대상", "USER_ENTERED", alertcells) 
-    # alert_row to
+    # alert_row
+    batch_update_values(service, SCAN_SPREADSHEET_ID, "@TC_수정대상", "USER_ENTERED", alertcells) 
+
   except HttpError as err:
     print(err)
 
