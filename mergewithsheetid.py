@@ -299,7 +299,7 @@ def different_head_sheets(creds):
             tmp_alert_row = tmp_row.copy()
             tmp_alert_row[21] = "테스트 수행되었음. 테스트 일자 Update 대상" # 비고란을 알림 정보로 셋팅
             alertcells.append(tmp_alert_row)
-        # alert_row to
+        # alert_row to 
       print(f'              ==>  merged valid data : {valid_data_cnt} 건', flush=True)
     print("allcells rowcount : ", len(allcells))
 
