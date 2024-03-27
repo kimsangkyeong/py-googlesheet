@@ -5,6 +5,7 @@ from google_auth_oauthlib.flow import InstalledAppFlow
 from googleapiclient.discovery import build
 from googleapiclient.errors import HttpError
 from datetime import date, datetime
+import pygsheets # https://pygsheets.readthedocs.io/en/stable/index.html
 
 # google cloud에서 api key https://console.cloud.google.com/cloud-resource-manager  :  
 # 1. APIs & Services - Enable API : Google Sheet API, Google Drive API
@@ -129,6 +130,8 @@ def batch_update_values(
         .execute()
     )
 
+    print(f"\n★ sheet 명 : {range_name} - {result.get('totalUpdatedRows')} rows updated.\n")
+
     # 취합 작업 시간 Logging
     mergetime = datetime.now().strftime('%Y-%m-%d %H:%M')
     logData = [["취합시간", mergetime]]
@@ -145,7 +148,55 @@ def batch_update_values(
         .execute()
     )
 
-    print(f"{(result.get('totalUpdatedCells'))} cells updated.")
+    # get sheet id
+    #authorize the pygsheets
+    gc = pygsheets.authorize(client_secret='C:\client_secrets.json')
+    sheet_id = gc.open_by_key(spreadsheet_id).worksheet('title',range_name).id
+
+    # cell datetype 설정하기
+    reqs = {'requests': [
+      # number date format for column P,Q
+      {'repeatCell': {
+          'range': {
+              'sheetId' : sheet_id,
+              'startRowIndex': 4,
+              'startColumnIndex': 15,
+              'endColumnIndex': 17,
+          },
+          'cell': {
+              'userEnteredFormat': {
+                  'numberFormat': {
+                      'type': 'DATE',
+                      'pattern': 'yyyy-mm-dd',
+                  },
+              },
+          },
+          'fields': 'userEnteredFormat.numberFormat',
+      }},
+      # number date format for column S
+      {'repeatCell': {
+          'range': {
+              'sheetId' : sheet_id,
+              'startRowIndex': 4,
+              'startColumnIndex': 18,
+              'endColumnIndex': 19,
+          },
+          'cell': {
+              'userEnteredFormat': {
+                  'numberFormat': {
+                      'type': 'DATE',
+                      'pattern': 'yyyy-mm-dd',
+                  },
+              },
+          },
+          'fields': 'userEnteredFormat.numberFormat',
+      }},
+    ]}
+    result = (
+        service.spreadsheets()
+        .batchUpdate(spreadsheetId=spreadsheet_id, body=reqs)
+        .execute()
+    )
     return result
   except HttpError as error:
     print(f"An error occurred: {error}")
@@ -227,6 +278,10 @@ def different_head_sheets(creds):
             if j >= 15: # Q 16 -> P 15(jira ticket)
               tmp_row[j-9] = row[j] # 10 -> 9 (jira ticket 포함)
 
+        # 날짜 컬럼은 '.' 문자를 '/'로 변경하기
+        for sidx in [15,16,18]:
+          tmp_row[sidx] = tmp_row[sidx].replace('.', '/').replace(' ','')
+
         allcells.append(tmp_row) 
         valid_data_cnt = valid_data_cnt + 1
 
@@ -240,7 +295,7 @@ def different_head_sheets(creds):
             is_tested = True  # 테스트 수행됨
             break
         if is_tested :
-          if len(tmp_row[test_date_idx]) < 8 : # 날짜 포맷이 안맞으면
+          if len(tmp_row[test_date_idx]) < 1 : # 날짜 포맷이 안맞으면
             tmp_alert_row = tmp_row.copy()
             tmp_alert_row[21] = "테스트 수행되었음. 테스트 일자 Update 대상" # 비고란을 알림 정보로 셋팅
             alertcells.append(tmp_alert_row)
